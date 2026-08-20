@@ -64,6 +64,7 @@ const el = {
   attachBtn:     document.getElementById("attachBtn"),
   fileInput:     document.getElementById("fileInput"),
   attachPreview: document.getElementById("attachPreview"),
+  micBtn:        document.getElementById("micBtn"),
   modelBar:      document.getElementById("modelBar"),
   barIcon:       document.getElementById("barIcon"),
   barName:       document.getElementById("barName"),
@@ -424,6 +425,7 @@ function setSending(v) {
   el.sendBtn.disabled = v;
   el.input.disabled = v;
   el.attachBtn.disabled = v;
+  el.micBtn.disabled = v;
 }
 
 function clearChat() {
@@ -544,6 +546,77 @@ el.input.addEventListener("paste", e => {
     }
   }
 });
+
+/* ── Voice input (Web Speech API) ───────────────────────── */
+(function initMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    el.micBtn.title = "Voice input not supported in this browser (use Chrome)";
+    el.micBtn.style.opacity = "0.35";
+    el.micBtn.style.cursor  = "not-allowed";
+    return;
+  }
+
+  const recognition = new SR();
+  recognition.continuous      = false;
+  recognition.interimResults  = true;
+  recognition.lang            = "en-US";
+
+  let isRecording  = false;
+  let savedText    = "";   // text in box before mic started
+
+  function startRec() {
+    if (state.sending) return;
+    savedText   = el.input.value;
+    isRecording = true;
+    el.micBtn.classList.add("recording");
+    el.micBtn.title = "Recording… click to stop";
+    showToast("🎤 Listening…");
+    recognition.start();
+  }
+
+  function stopRec() {
+    isRecording = false;
+    el.micBtn.classList.remove("recording");
+    el.micBtn.title = "Voice input";
+    recognition.stop();
+  }
+
+  el.micBtn.addEventListener("click", () => {
+    if (isRecording) stopRec();
+    else startRec();
+  });
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript).join("");
+    el.input.value = savedText ? `${savedText} ${transcript}` : transcript;
+    autoGrow(el.input);
+    updateCharCount();
+  };
+
+  recognition.onend = () => {
+    if (isRecording) {
+      // auto-restarted mid-sentence on some browsers — restart
+      recognition.start();
+    } else {
+      el.micBtn.classList.remove("recording");
+      el.micBtn.title = "Voice input";
+    }
+  };
+
+  recognition.onerror = (e) => {
+    stopRec();
+    const msgs = {
+      "not-allowed":  "Mic permission denied — allow microphone access in browser.",
+      "no-speech":    "No speech detected. Try again.",
+      "network":      "Network error during speech recognition.",
+      "aborted":      "",
+    };
+    const msg = msgs[e.error] || `Speech error: ${e.error}`;
+    if (msg) showToast(msg);
+  };
+})();
 
 /* ── Submit ──────────────────────────────────────────────── */
 el.form.addEventListener("submit", async e => {
