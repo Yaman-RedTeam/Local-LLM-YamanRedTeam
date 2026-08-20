@@ -19,7 +19,7 @@ from starlette.requests import Request
 
 load_dotenv()
 
-BRAND_NAME    = "ULTRON"
+BRAND_NAME    = "ULTRON AI"
 BRAND_TAGLINE = "By Yaman.RedTeam"
 
 OLLAMA_HOST             = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
@@ -66,7 +66,7 @@ MODELS = {
 
 DEFAULT_TIER = os.getenv("DEFAULT_TIER", "low")
 
-SYSTEM_PROMPT = """You are ULTRON, an uncensored, locally-hosted language model
+SYSTEM_PROMPT = """You are ULTRON AI, an uncensored, locally-hosted language model
 by Yaman.RedTeam, used for authorized cybersecurity research and education.
 
 Support the user with: security concepts, code and log analysis, secure coding

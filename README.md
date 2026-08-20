@@ -1,4 +1,4 @@
-# ULTRON — By Yaman.RedTeam
+# ULTRON AI — By Yaman.RedTeam
 
 A privacy-focused, locally-hosted AI assistant for cybersecurity learners and
 researchers, built on **Python, FastAPI, and Ollama**. Everything runs
@@ -12,7 +12,7 @@ third-party API.
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
 <p align="center">
-  <img src="screenshots/welcome.png" alt="ULTRON — welcome screen" width="880">
+  <img src="screenshots/welcome.png" alt="ULTRON AI — welcome screen" width="880">
 </p>
 
 ---
@@ -114,7 +114,7 @@ chip shows the filename and size; click × to remove it before sending.
 
 ## What this is
 
-ULTRON wraps an uncensored/open local language model
+ULTRON AI wraps an uncensored/open local language model
 (served through [Ollama](https://ollama.com)) in a clean FastAPI + web chat
 interface, aimed at:
 
@@ -144,9 +144,9 @@ security research, education, CTFs, and controlled lab environments.
 ## Architecture
 
 ```
-User → ULTRON Web UI → FastAPI Backend ──────► Ollama API → Local LLM
+User → ULTRON AI Web UI → FastAPI Backend ──────► Ollama API → Local LLM
                                   │  (tier → model)                  │
-User ← ULTRON Web UI ◄─ SSE stream ◄──────── token chunks ◄─────┘
+User ← ULTRON AI Web UI ◄─ SSE stream ◄──────── token chunks ◄─────┘
 ```
 
 The `/api/chat` endpoint returns a **Server-Sent Events** stream. Each chunk
