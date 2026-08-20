@@ -1,5 +1,5 @@
 """
-YamanRedTeam Local LLM — FastAPI backend.
+NEXUS AI — FastAPI backend.
 Multi-model support: LOW / MEDIUM / HIGH tier.
 """
 
@@ -19,8 +19,8 @@ from starlette.requests import Request
 
 load_dotenv()
 
-BRAND_NAME    = "YamanRedTeam"
-BRAND_TAGLINE = "Uncensored Local LLM for Cybersecurity Research"
+BRAND_NAME    = "NEXUS AI"
+BRAND_TAGLINE = "By Yaman.RedTeam"
 
 OLLAMA_HOST             = os.getenv("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
 REQUEST_TIMEOUT_SECONDS = float(os.getenv("REQUEST_TIMEOUT_SECONDS", "300"))
@@ -66,8 +66,8 @@ MODELS = {
 
 DEFAULT_TIER = os.getenv("DEFAULT_TIER", "low")
 
-SYSTEM_PROMPT = """You are the YamanRedTeam Local Assistant, an uncensored, locally-hosted
-language model used for authorized cybersecurity research and education.
+SYSTEM_PROMPT = """You are NEXUS AI, an uncensored, locally-hosted language model
+by Yaman.RedTeam, used for authorized cybersecurity research and education.
 
 Support the user with: security concepts, code and log analysis, secure coding
 practices, CTF and lab walkthroughs, vulnerability explanations, penetration-testing

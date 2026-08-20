@@ -1,4 +1,4 @@
-# YamanRedTeam — Uncensored Local LLM for Cybersecurity Research
+# NEXUS AI — By Yaman.RedTeam
 
 A privacy-focused, locally-hosted AI assistant for cybersecurity learners and
 researchers, built on **Python, FastAPI, and Ollama**. Everything runs
@@ -12,7 +12,7 @@ third-party API.
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
 <p align="center">
-  <img src="screenshots/welcome.png" alt="YamanRedTeam Local LLM — welcome screen" width="880">
+  <img src="screenshots/welcome.png" alt="NEXUS AI — welcome screen" width="880">
 </p>
 
 ---
@@ -97,7 +97,7 @@ button, tier card, send button, and message bubbles all recolor together.
 
 ## What this is
 
-YamanRedTeam Local LLM wraps an uncensored/open local language model
+NEXUS AI wraps an uncensored/open local language model
 (served through [Ollama](https://ollama.com)) in a clean FastAPI + web chat
 interface, aimed at:
 
@@ -127,9 +127,9 @@ security research, education, CTFs, and controlled lab environments.
 ## Architecture
 
 ```
-User → YamanRedTeam Web UI → FastAPI Backend ──────► Ollama API → Local LLM
-                                    │  (tier → model)                  │
-User ← YamanRedTeam Web UI ◄─ SSE stream ◄──────── token chunks ◄─────┘
+User → NEXUS AI Web UI → FastAPI Backend ──────► Ollama API → Local LLM
+                                  │  (tier → model)                  │
+User ← NEXUS AI Web UI ◄─ SSE stream ◄──────── token chunks ◄─────┘
 ```
 
 The `/api/chat` endpoint returns a **Server-Sent Events** stream. Each chunk
@@ -407,4 +407,4 @@ MIT — see [LICENSE](LICENSE).
 
 ---
 
-Built independently by **YamanRedTeam**.
+Built by **Yaman.RedTeam**.
