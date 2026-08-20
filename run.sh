@@ -43,17 +43,17 @@ if ! ollama list | awk '{print $1}' | cut -d: -f1 | grep -qx "${OLLAMA_MODEL%%:*
     ollama pull "${OLLAMA_MODEL}"
 fi
 
-echo "[*] Launching YamanRedTeam Local LLM on http://${APP_HOST}:${APP_PORT}"
+echo "[*] Launching ULTRON on http://${APP_HOST}:${APP_PORT}"
 
 # Background mode: ./run.sh -d  (uses screen/nohup)
 if [[ "${1:-}" == "-d" ]]; then
     if command -v screen >/dev/null 2>&1; then
-        screen -dmS llm-server uvicorn app:app --host "${APP_HOST}" --port "${APP_PORT}"
+        screen -dmS llm-server python3 -m uvicorn app:app --host "${APP_HOST}" --port "${APP_PORT}"
         echo "[+] Running in screen session 'llm-server'. Reattach: screen -r llm-server"
     else
-        nohup uvicorn app:app --host "${APP_HOST}" --port "${APP_PORT}" > /tmp/yamanredteam-app.log 2>&1 &
+        nohup python3 -m uvicorn app:app --host "${APP_HOST}" --port "${APP_PORT}" > /tmp/yamanredteam-app.log 2>&1 &
         echo "[+] Running in background (PID $!). Logs: /tmp/yamanredteam-app.log"
     fi
 else
-    uvicorn app:app --host "${APP_HOST}" --port "${APP_PORT}"
+    python3 -m uvicorn app:app --host "${APP_HOST}" --port "${APP_PORT}"
 fi
