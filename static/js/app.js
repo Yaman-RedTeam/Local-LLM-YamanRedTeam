@@ -9,8 +9,8 @@ const MODELS = {
     params: "8B", size: "4.7 GB", ram: "~6 GB RAM", badge: "⚖️ Balanced"
   },
   high: {
-    id: "mistral", label: "HIGH", icon: "🔥",
-    params: "7B (Mistral)", size: "4.1 GB", ram: "~8 GB RAM", badge: "🔥 Powerful"
+    id: "nous-hermes2:10.7b", label: "HIGH", icon: "🔥",
+    params: "10.7B (Mixtral MoE)", size: "6.1 GB", ram: "~6 GB RAM", badge: "🔥 Powerful"
   },
 };
 

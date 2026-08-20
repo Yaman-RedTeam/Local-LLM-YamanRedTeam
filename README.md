@@ -58,7 +58,7 @@ model bar, hero, and the active-tier glow pulse all morph together:
 |------|-------|--------|------|---------|-------|-----------|
 | ⚡ **LOW** | `tinyllama` | 1.1B | 637 MB | ~2 GB | 🟢 Green | 600 |
 | ⚖️ **MEDIUM** | `dolphin-llama3` | 8B | 4.7 GB | ~6 GB | 🔵 Blue | 1200 |
-| 🔥 **HIGH** | `mistral` | 7B | 4.1 GB | ~8 GB | 🔴 Red | 2048 |
+| 🔥 **HIGH** | `nous-hermes2:10.7b` | 10.7B (Mixtral MoE) | 6.1 GB | ~6 GB | 🔴 Red | 2048 |
 
 > The active tier is sent per-request, so you can switch models mid-session
 > without restarting anything.
@@ -78,7 +78,7 @@ button, tier card, send button, and message bubbles all recolor together.
       <img src="screenshots/theme-medium.png" alt="MEDIUM / blue theme" width="420"></td>
   </tr>
   <tr>
-    <td align="center"><b>🔴 HIGH — mistral</b><br>
+    <td align="center"><b>🔴 HIGH — nous-hermes2:10.7b</b><br>
       <img src="screenshots/theme-high.png" alt="HIGH / red theme" width="420"></td>
   </tr>
 </table>
@@ -215,7 +215,7 @@ cp .env.example .env        # edit if you want a different default tier/host/por
 # 6. Pull the model(s) you want — one per tier you plan to use
 ollama pull tinyllama          # LOW   (~2 GB RAM)
 ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
-ollama pull mistral            # HIGH  (~8 GB RAM)
+ollama pull nous-hermes2:10.7b     # HIGH   (~6 GB RAM)
 ```
 
 > You don't need all three — pull only the tiers your machine can run. The UI
@@ -252,7 +252,7 @@ cp .env.example .env
 # 5. Pull the model(s) you want
 ollama pull tinyllama          # LOW   (~2 GB RAM)
 ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
-ollama pull mistral            # HIGH  (~8 GB RAM)
+ollama pull nous-hermes2:10.7b     # HIGH   (~6 GB RAM)
 ```
 
 > **Apple Silicon (M1/M2/M3):** Ollama runs natively on ARM — models run
@@ -291,7 +291,7 @@ copy .env.example .env
 # 5. Pull the model(s) you want
 ollama pull tinyllama          # LOW   (~2 GB RAM)
 ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
-ollama pull mistral            # HIGH  (~8 GB RAM)
+ollama pull nous-hermes2:10.7b     # HIGH   (~6 GB RAM)
 ```
 
 > Ollama on Windows starts automatically in the system tray after installation.
@@ -391,9 +391,9 @@ served at **`/api/docs`**.
   that tier (see the table above).
 - **"Not enough RAM to load ..."** — the tier's model is larger than your
   free RAM. Switch to a lower tier.
-- **Slow first response on HIGH (mistral)** — the first request loads model
-  weights into RAM (or swap); streaming means you'll see the first token as
-  soon as generation starts, even if loading takes 30–90 s on a CPU-only box.
+- **Slow first response on HIGH (nous-hermes2)** — the first request loads
+  model weights into RAM; streaming means you'll see the first token as soon
+  as generation starts, even if loading takes 30–90 s on a CPU-only box.
   Subsequent requests are faster once the model is warm.
 - **Port already in use** — change `APP_PORT` in `.env`.
 - **macOS: `python3` not found** — run `brew install python` or install from
