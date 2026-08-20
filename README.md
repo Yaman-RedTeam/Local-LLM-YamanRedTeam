@@ -36,6 +36,17 @@ third-party API.
 
 ---
 
+## 🎬 Demo
+
+Switching tier instantly recolors the **entire** interface — brand mark,
+model bar, hero, and the active-tier glow pulse all morph together:
+
+<p align="center">
+  <img src="screenshots/demo.gif" alt="Switching tiers recolors the whole UI in real time" width="880">
+</p>
+
+---
+
 ## 🎨 The four tiers
 
 | Tier | Model | Params | Size | Min RAM | Theme |
