@@ -19,11 +19,12 @@ third-party API.
 
 ## ✨ Highlights
 
-- **4-tier model switcher** — pick a model to match your hardware, from a
-  1.1 B featherweight to an uncensored 8×7B MoE powerhouse.
+- **3-tier model switcher** — pick a model to match your hardware: from a
+  1.1 B featherweight to a 7B powerhouse.
+- **Real-time streaming** — responses stream token-by-token via SSE, so the
+  first word appears in ~1–2 s instead of waiting for full completion.
 - **Dynamic UI theming** — switching tier recolors the *entire* interface:
-  🟢 **LOW** · 🔵 **MEDIUM** · 🔴 **HIGH** · 🟣 **EXTREME**, with a smooth
-  0.4 s color morph.
+  🟢 **LOW** · 🔵 **MEDIUM** · 🔴 **HIGH**, with a smooth 0.4 s color morph.
 - **Live micro-interactions** — a theme-aware glow **pulse** on the active
   tier and a subtle **hover lift** on every button.
 - **Live model availability** — the UI polls Ollama and shows, per tier,
@@ -47,21 +48,16 @@ model bar, hero, and the active-tier glow pulse all morph together:
 
 ---
 
-## 🎨 The four tiers
+## 🎨 The three tiers
 
-| Tier | Model | Params | Size | Min RAM | Theme |
-|------|-------|--------|------|---------|-------|
-| ⚡ **LOW** | `tinyllama` | 1.1B | 637 MB | ~2 GB | 🟢 Green |
-| ⚖️ **MEDIUM** | `dolphin-llama3` | 8B | 4.7 GB | ~6 GB | 🔵 Blue |
-| 🔥 **HIGH** | `mistral` | 7B | 4.1 GB | ~8 GB | 🔴 Red |
-| ☠️ **EXTREME** | `dolphin-mixtral` | 8×7B MoE | ~26 GB | 16+ GB | 🟣 Purple |
+| Tier | Model | Params | Size | Min RAM | Theme | Max tokens |
+|------|-------|--------|------|---------|-------|-----------|
+| ⚡ **LOW** | `tinyllama` | 1.1B | 637 MB | ~2 GB | 🟢 Green | 600 |
+| ⚖️ **MEDIUM** | `dolphin-llama3` | 8B | 4.7 GB | ~6 GB | 🔵 Blue | 1200 |
+| 🔥 **HIGH** | `mistral` | 7B | 4.1 GB | ~8 GB | 🔴 Red | 2048 |
 
 > The active tier is sent per-request, so you can switch models mid-session
 > without restarting anything.
-
-<p align="center">
-  <img src="screenshots/switcher-4tier.png" alt="Four-tier model switcher" width="520">
-</p>
 
 ---
 
@@ -80,8 +76,6 @@ button, tier card, send button, and message bubbles all recolor together.
   <tr>
     <td align="center"><b>🔴 HIGH — mistral</b><br>
       <img src="screenshots/theme-high.png" alt="HIGH / red theme" width="420"></td>
-    <td align="center"><b>🟣 EXTREME — dolphin-mixtral</b><br>
-      <img src="screenshots/theme-extreme.png" alt="EXTREME / purple theme" width="420"></td>
   </tr>
 </table>
 
@@ -96,7 +90,7 @@ button, tier card, send button, and message bubbles all recolor together.
   </tr>
 </table>
 
-> 🎥 A short clip of the pulse recoloring across all four themes is included
+> 🎥 A short clip of the pulse recoloring across all three themes is included
 > at [`screenshots/tier-pulse.webm`](screenshots/tier-pulse.webm).
 
 ---
@@ -133,10 +127,15 @@ security research, education, CTFs, and controlled lab environments.
 ## Architecture
 
 ```
-User → YamanRedTeam Web UI → FastAPI Backend → Ollama API → Local LLM
-                                    │  (tier → model)
-User ← YamanRedTeam Web UI ← FastAPI Backend ←─────────────┘
+User → YamanRedTeam Web UI → FastAPI Backend ──────► Ollama API → Local LLM
+                                    │  (tier → model)                  │
+User ← YamanRedTeam Web UI ◄─ SSE stream ◄──────── token chunks ◄─────┘
 ```
+
+The `/api/chat` endpoint returns a **Server-Sent Events** stream. Each chunk
+is a JSON line (`data: {"content": "token"}`), terminated by `data: [DONE]`.
+The frontend uses `ReadableStream` to render tokens as they arrive, then
+re-renders markdown on completion.
 
 See [docs/Architecture.md](docs/Architecture.md) for the full component
 breakdown, and [docs/Local_LLM_Setup_YamanRedTeam.pdf](docs/Local_LLM_Setup_YamanRedTeam.pdf)
@@ -147,18 +146,19 @@ for a complete setup and concepts guide.
 ```
 Local-LLM-YamanRedTeam/
 │
-├── app.py                     # FastAPI backend — tiers, chat, error handling
+├── app.py                     # FastAPI backend — tiers, SSE streaming, errors
 ├── requirements.txt
 ├── run.sh                     # Starts Ollama (if needed) + the web app
+│                              #   ./run.sh -d  → background via screen/nohup
 ├── README.md
 ├── .gitignore  ·  LICENSE  ·  .env.example
 │
 ├── templates/
-│   └── index.html             # Jinja2 chat UI (4-tier switcher, welcome)
+│   └── index.html             # Jinja2 chat UI (3-tier switcher, welcome)
 │
 ├── static/
 │   ├── css/style.css          # Dark theme + per-tier accent themes
-│   ├── js/app.js              # Chat logic, theming, safe DOM rendering
+│   ├── js/app.js              # SSE stream reader, theming, markdown renderer
 │   └── assets/yamanredteam-logo.svg
 │
 ├── docs/
@@ -196,13 +196,12 @@ pip install -r requirements.txt
 cp .env.example .env        # edit if you want a different default tier/host/port
 
 # 6. Pull the model(s) you want — one per tier you plan to use
-ollama pull tinyllama          # LOW
-ollama pull dolphin-llama3     # MEDIUM
-ollama pull mistral            # HIGH
-ollama pull dolphin-mixtral    # EXTREME  (needs 16+ GB RAM)
+ollama pull tinyllama          # LOW   (~2 GB RAM)
+ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
+ollama pull mistral            # HIGH  (~8 GB RAM)
 ```
 
-> You don't need all four — pull only the tiers your machine can run. The UI
+> You don't need all three — pull only the tiers your machine can run. The UI
 > shows a dim ○ for any tier whose model isn't pulled yet.
 
 ## Running the app
@@ -210,7 +209,9 @@ ollama pull dolphin-mixtral    # EXTREME  (needs 16+ GB RAM)
 Option A — the helper script (starts Ollama if it isn't running, then the web app):
 
 ```bash
-./run.sh
+./run.sh          # foreground — logs to terminal
+./run.sh -d       # background — via screen (reattach: screen -r llm-server)
+                  #              or nohup if screen isn't installed
 ```
 
 Option B — manual:
@@ -247,7 +248,7 @@ Ollama model and `ollama pull` it.
 | `GET /api/health` | Liveness check for the web service |
 | `GET /api/status` | Ollama connectivity + default-model availability |
 | `GET /api/models` | Per-tier info + **live availability** for every tier |
-| `POST /api/chat` | Send a conversation and get a reply |
+| `POST /api/chat` | Send a conversation — returns an SSE stream |
 
 **`POST /api/chat`** — request body:
 
@@ -258,10 +259,20 @@ Ollama model and `ollama pull` it.
 }
 ```
 
-Response:
+Response — `text/event-stream` (Server-Sent Events):
 
-```json
-{ "role": "assistant", "content": "...", "model": "mistral", "tier": "high" }
+```
+data: {"content": "SSRF"}
+data: {"content": " (Server"}
+data: {"content": "-Side"}
+...
+data: [DONE]
+```
+
+Each `data:` line carries one token chunk. On error:
+
+```
+data: {"error": "Model 'mistral' not installed. Run: ollama pull mistral"}
 ```
 
 `tier` is optional and defaults to `DEFAULT_TIER`. Interactive API docs are
@@ -269,16 +280,18 @@ served at **`/api/docs`**.
 
 ## Troubleshooting
 
-- **"Ollama offline" / 503 from `/api/chat`** — make sure `ollama serve` is
+- **"Could not reach the backend"** — the FastAPI server isn't running.
+  Start it with `./run.sh` or `./run.sh -d` for background mode.
+- **"Ollama offline" / SSE error from `/api/chat`** — make sure `ollama serve` is
   running and reachable at `OLLAMA_HOST`.
 - **"Model not pulled" (dim ○ on a tier)** — run `ollama pull <model>` for
   that tier (see the table above).
-- **"Not enough RAM to load ..." (507)** — the tier's model is larger than
-  your free RAM. Switch to a lower tier. (EXTREME / `dolphin-mixtral` needs
-  16+ GB.)
-- **Slow first response** — the first request after starting Ollama loads
-  model weights into memory; later requests are faster. Larger models are
-  much slower on CPU-only machines.
+- **"Not enough RAM to load ..."** — the tier's model is larger than your
+  free RAM. Switch to a lower tier.
+- **Slow first response on HIGH (mistral)** — the first request loads model
+  weights into RAM (or swap); streaming means you'll see the first token as
+  soon as generation starts, even if loading takes 30–90 s on a CPU-only box.
+  Subsequent requests are faster once the model is warm.
 - **Port already in use** — change `APP_PORT` in `.env`.
 
 ## Responsible use
