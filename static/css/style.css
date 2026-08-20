@@ -285,7 +285,7 @@ body[data-tier="high"] .bg-grid {
 
 /* ═══ SIDEBAR (toolkit navigation) ════════════════════════════════════ */
 .sidebar {
-  width: 262px; flex-shrink: 0; padding: 18px 15px; gap: 9px;
+  width: 240px; flex-shrink: 0; padding: 12px 13px; gap: 6px;
   display: flex; flex-direction: column; overflow-y: auto;
   background: linear-gradient(180deg, rgba(10,14,20,0.55), rgba(8,11,16,0.4));
   backdrop-filter: blur(16px) saturate(130%);
@@ -303,13 +303,13 @@ body[data-tier="high"] .bg-grid {
   content: ''; width: 5px; height: 5px; border-radius: 50%;
   background: var(--accent); box-shadow: 0 0 6px var(--accent-glow); flex-shrink: 0;
 }
-.sidebar-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 5px 0; }
+.sidebar-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 3px 0; }
 
 .category-list { display: flex; flex-direction: column; gap: 3px; }
 .category-chip {
   text-align: left; background: transparent; border: 1px solid transparent; color: var(--text-muted);
-  padding: 9px 11px; border-radius: 10px; font-size: 12.5px; cursor: pointer;
-  transition: all var(--transition); display: flex; align-items: center; gap: 10px;
+  padding: 6px 9px; border-radius: 8px; font-size: 12px; cursor: pointer;
+  transition: all var(--transition); display: flex; align-items: center; gap: 8px;
   font-family: inherit; position: relative;
 }
 .category-chip:hover {
@@ -328,7 +328,7 @@ body[data-tier="high"] .bg-grid {
 .stats-row { display: flex; gap: 9px; }
 .stat-card {
   flex: 1; background: var(--glass); border: 1px solid var(--border-soft);
-  border-radius: var(--radius-sm); padding: 10px; text-align: center;
+  border-radius: var(--radius-sm); padding: 7px; text-align: center;
   box-shadow: var(--edge-hi); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 }
 .stat-value { font-size: 19px; font-weight: 700; font-family: var(--mono); color: var(--accent-bright); line-height: 1.1; text-shadow: 0 0 14px var(--accent-glow-soft); }
@@ -385,11 +385,10 @@ body[data-tier="high"]   .welcome-glow { background: radial-gradient(circle, rgb
 .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
 .badge-dot.ok { background: var(--ok); box-shadow: 0 0 7px var(--ok-glow); }
 .welcome-desc { position: relative; z-index: 1; color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 14px; }
-.welcome-grid { display: none; }
 .welcome-desc strong { color: var(--text); }
 
-/* ── Welcome quick-action grid ── */
-.welcome-grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align: left; }
+/* ── Welcome quick-action grid (hidden — use sidebar categories instead) ── */
+.welcome-grid { display: none; }
 .welcome-card {
   background: var(--glass); border: 1px solid var(--border-soft); border-radius: var(--radius-sm);
   padding: 13px 15px; cursor: pointer; transition: all var(--transition);
