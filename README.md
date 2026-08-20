@@ -21,8 +21,9 @@ third-party API.
 
 - **3-tier model switcher** — pick a model to match your hardware: from a
   1.1 B featherweight to a 7B powerhouse.
-- **Real-time streaming** — responses stream token-by-token via SSE, so the
-  first word appears in ~1–2 s instead of waiting for full completion.
+- **Real-time streaming** — responses stream token-by-token via SSE; a
+  blinking cursor shows the model is still generating, disappears when done.
+  First word appears in ~1–2 s instead of waiting for full completion.
 - **Dynamic UI theming** — switching tier recolors the *entire* interface:
   🟢 **LOW** · 🔵 **MEDIUM** · 🔴 **HIGH**, with a smooth 0.4 s color morph.
 - **Live micro-interactions** — a theme-aware glow **pulse** on the active
