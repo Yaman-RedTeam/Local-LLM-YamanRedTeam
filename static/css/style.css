@@ -105,21 +105,53 @@ body {
 }
 .bg-aura {
   background:
-    radial-gradient(46% 42% at 16% 8%,  rgba(var(--accent-rgb), 0.10),  transparent 62%),
-    radial-gradient(42% 40% at 88% 14%, rgba(var(--accent-rgb), 0.06),   transparent 62%),
-    radial-gradient(70% 55% at 50% 118%, rgba(var(--accent-rgb), 0.10),  transparent 60%);
-  transition: background 0.6s ease;
+    radial-gradient(46% 42% at 16% 8%,  rgba(34,227,122, 0.10),  transparent 62%),
+    radial-gradient(42% 40% at 88% 14%, rgba(34,227,122, 0.06),   transparent 62%),
+    radial-gradient(70% 55% at 50% 118%, rgba(34,227,122, 0.10),  transparent 60%);
+}
+body[data-tier="medium"] .bg-aura {
+  background:
+    radial-gradient(46% 42% at 16% 8%,  rgba(34,211,238, 0.10),  transparent 62%),
+    radial-gradient(42% 40% at 88% 14%, rgba(34,211,238, 0.06),   transparent 62%),
+    radial-gradient(70% 55% at 50% 118%, rgba(34,211,238, 0.10),  transparent 60%);
+}
+body[data-tier="high"] .bg-aura {
+  background:
+    radial-gradient(46% 42% at 16% 8%,  rgba(255,138,51, 0.10),  transparent 62%),
+    radial-gradient(42% 40% at 88% 14%, rgba(255,138,51, 0.06),   transparent 62%),
+    radial-gradient(70% 55% at 50% 118%, rgba(255,138,51, 0.10),  transparent 60%);
+}
+body[data-tier="extreme"] .bg-aura {
+  background:
+    radial-gradient(46% 42% at 16% 8%,  rgba(176,108,255, 0.10),  transparent 62%),
+    radial-gradient(42% 40% at 88% 14%, rgba(176,108,255, 0.06),   transparent 62%),
+    radial-gradient(70% 55% at 50% 118%, rgba(176,108,255, 0.10),  transparent 60%);
 }
 .bg-grid {
   inset: -40%;
   background-image:
-    linear-gradient(rgba(var(--accent-rgb), 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(34,227,122, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,227,122, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
   -webkit-mask-image: radial-gradient(ellipse 55% 55% at 50% 42%, #000 0%, transparent 72%);
           mask-image: radial-gradient(ellipse 55% 55% at 50% 42%, #000 0%, transparent 72%);
   animation: grid-drift 60s linear infinite;
   opacity: 0.6;
+}
+body[data-tier="medium"] .bg-grid {
+  background-image:
+    linear-gradient(rgba(34,211,238, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34,211,238, 0.04) 1px, transparent 1px);
+}
+body[data-tier="high"] .bg-grid {
+  background-image:
+    linear-gradient(rgba(255,138,51, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,138,51, 0.04) 1px, transparent 1px);
+}
+body[data-tier="extreme"] .bg-grid {
+  background-image:
+    linear-gradient(rgba(176,108,255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(176,108,255, 0.04) 1px, transparent 1px);
 }
 @keyframes grid-drift {
   from { transform: translate3d(0,0,0); }
@@ -340,9 +372,12 @@ body {
 .welcome { max-width: 720px; margin: 3.5vh auto 34px; text-align: center; position: relative; }
 .welcome-glow {
   position: absolute; width: 360px; height: 360px; top: -70px; left: 50%; transform: translateX(-50%);
-  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 68%);
-  pointer-events: none; z-index: 0; filter: blur(6px); transition: background 0.5s ease;
+  background: radial-gradient(circle, rgba(34,227,122, 0.28) 0%, transparent 68%);
+  pointer-events: none; z-index: 0; filter: blur(6px);
 }
+body[data-tier="medium"] .welcome-glow { background: radial-gradient(circle, rgba(34,211,238, 0.28) 0%, transparent 68%); }
+body[data-tier="high"]   .welcome-glow { background: radial-gradient(circle, rgba(255,138,51, 0.28) 0%, transparent 68%); }
+body[data-tier="extreme"] .welcome-glow { background: radial-gradient(circle, rgba(176,108,255, 0.28) 0%, transparent 68%); }
 .welcome-logo-wrap {
   position: relative; z-index: 1; width: 72px; height: 72px; margin: 0 auto 20px;
   background: linear-gradient(150deg, rgba(var(--accent-rgb), 0.95), rgba(var(--accent-rgb), 0.28));
