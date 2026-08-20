@@ -53,15 +53,6 @@ MODELS = {
         "size":        "4.1 GB",
         "badge":       "🔥 Powerful",
     },
-    "extreme": {
-        "id":          "dolphin-mixtral",
-        "label":       "EXTREME",
-        "description": "Max uncensored",
-        "ram":         "16+ GB RAM",
-        "params":      "8x7B MoE",
-        "size":        "~26 GB",
-        "badge":       "☠️ Extreme",
-    },
 }
 
 DEFAULT_TIER = os.getenv("DEFAULT_TIER", "low")

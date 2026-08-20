@@ -12,10 +12,6 @@ const MODELS = {
     id: "mistral", label: "HIGH", icon: "🔥",
     params: "7B (Mistral)", size: "4.1 GB", ram: "~8 GB RAM", badge: "🔥 Powerful"
   },
-  extreme: {
-    id: "dolphin-mixtral", label: "EXTREME", icon: "☠️",
-    params: "8x7B MoE", size: "~26 GB", ram: "16+ GB RAM", badge: "☠️ Extreme"
-  }
 };
 
 const CATEGORIES = [
