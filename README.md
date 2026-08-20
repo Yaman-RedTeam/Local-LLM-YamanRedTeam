@@ -170,7 +170,7 @@ Local-LLM-YamanRedTeam/
 
 ## Requirements
 
-- Linux (tested on Kali Linux), macOS, or Windows 10/11
+- Linux (tested on Kali Linux), macOS (Intel + Apple Silicon), or Windows 10/11
 - Python 3.10+
 - [Ollama](https://ollama.com) installed and runnable
 - Disk/RAM depending on the tier(s) you pull (see the table above)
@@ -203,6 +203,46 @@ ollama pull mistral            # HIGH  (~8 GB RAM)
 
 > You don't need all three — pull only the tiers your machine can run. The UI
 > shows a dim ○ for any tier whose model isn't pulled yet.
+
+## Setup (macOS)
+
+**Prerequisites — install these first:**
+
+| Tool | How |
+|------|-----|
+| Homebrew | `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"` |
+| Python 3.10+ | `brew install python` (or download from python.org) |
+| Git | `brew install git` (or Xcode CLT: `xcode-select --install`) |
+| Ollama | `brew install ollama` **or** download the `.dmg` from https://ollama.com/download/mac |
+
+**Then in Terminal:**
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/Yaman-RedTeam/Local-LLM-YamanRedTeam.git
+cd Local-LLM-YamanRedTeam
+
+# 2. Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+
+# 4. Copy the example environment file
+cp .env.example .env
+
+# 5. Pull the model(s) you want
+ollama pull tinyllama          # LOW   (~2 GB RAM)
+ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
+ollama pull mistral            # HIGH  (~8 GB RAM)
+```
+
+> **Apple Silicon (M1/M2/M3):** Ollama runs natively on ARM — models run
+> significantly faster than on Intel Macs. No extra setup needed.
+>
+> **Ollama as a .dmg app:** it starts automatically on login and runs in the
+> menu bar. If installed via Homebrew, start it manually: `ollama serve`.
 
 ## Setup (Windows 10 / 11)
 
@@ -339,6 +379,11 @@ served at **`/api/docs`**.
   soon as generation starts, even if loading takes 30–90 s on a CPU-only box.
   Subsequent requests are faster once the model is warm.
 - **Port already in use** — change `APP_PORT` in `.env`.
+- **macOS: `python3` not found** — run `brew install python` or install from
+  python.org; macOS ships an alias but not the full interpreter.
+- **macOS: `ollama` command not found after .dmg install** — the .dmg app
+  doesn't add `ollama` to PATH; use `brew install ollama` instead, or start
+  Ollama from the menu bar and use `ollama pull` from a new Terminal window.
 - **Windows: `venv\Scripts\activate` not recognized** — open PowerShell as
   Administrator and run `Set-ExecutionPolicy RemoteSigned`, then try again.
 - **Windows: `python` not found** — reinstall Python and make sure
