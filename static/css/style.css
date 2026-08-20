@@ -501,6 +501,24 @@ body[data-tier="high"]   .welcome-glow { background: radial-gradient(circle, rgb
 }
 .msg.error .msg-bubble { background: rgba(255,84,112,0.08); border: 1px solid rgba(255,84,112,0.32); color: var(--danger); }
 
+/* ── Streaming bubble ────────────────────────────────────── */
+.msg-bubble.streaming {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  box-shadow: var(--shadow-card), 0 0 18px -4px rgba(var(--accent-rgb), 0.25);
+}
+.msg-bubble.streaming::after {
+  content: '▋';
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent);
+  animation: blink-cursor 0.65s step-end infinite;
+  vertical-align: baseline;
+}
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 .msg-tier { font-size: 9px; padding: 2px 7px; border-radius: 5px; font-family: var(--mono); box-shadow: var(--edge-hi); }
 .msg-tier.tier-low     { background: rgba(var(--tier-low-rgb),0.12);     color: var(--tier-low-bright); }
 .msg-tier.tier-medium  { background: rgba(var(--tier-medium-rgb),0.12);  color: var(--tier-medium-bright); }

@@ -497,6 +497,7 @@ el.form.addEventListener("submit", async e => {
 
         if (chunk.error) {
           removeTypingIndicator();
+          if (streamBubble) streamBubble.classList.remove("streaming");
           addErrorMessage(chunk.error);
           state.history.pop();
           return;
@@ -506,6 +507,7 @@ el.form.addEventListener("submit", async e => {
           if (!streamBubble) {
             removeTypingIndicator();
             streamBubble = addMessage("assistant", "", tier);
+            streamBubble.classList.add("streaming");
           }
           fullContent += chunk.content;
           streamBubble.textContent = fullContent;
@@ -515,6 +517,7 @@ el.form.addEventListener("submit", async e => {
     }
 
     if (streamBubble && fullContent) {
+      streamBubble.classList.remove("streaming");
       streamBubble.innerHTML = "";
       renderMessageBody(streamBubble, fullContent);
       state.history.push({ role: "assistant", content: fullContent });
