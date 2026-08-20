@@ -477,34 +477,71 @@ function showAttachChip(name, sizeLabel, icon) {
   el.attachBtn.classList.add("has-file");
 }
 
-el.attachBtn.addEventListener("click", () => { if (!state.sending) el.fileInput.click(); });
-
-el.fileInput.addEventListener("change", () => {
-  const file = el.fileInput.files[0];
+function processFile(file) {
   if (!file) return;
   const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
 
-  if (IMAGE_EXTS.has(ext)) {
-    if (file.size > MAX_IMAGE_BYTES) { showToast("Image too large (max 5 MB)"); el.fileInput.value = ""; return; }
+  if (IMAGE_EXTS.has(ext) || file.type.startsWith("image/")) {
+    if (file.size > MAX_IMAGE_BYTES) { showToast("Image too large (max 5 MB)"); return; }
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = reader.result;          // "data:image/png;base64,..."
-      const b64 = dataUrl.split(",")[1];
-      state.attachment = { type: "image", name: file.name, content: b64, mime: file.type, sizeLabel: fmtSize(file.size) };
-      showAttachChip(file.name, fmtSize(file.size), "🖼️");
+      const b64 = reader.result.split(",")[1];
+      const name = file.name || `image.${file.type.split("/")[1] || "png"}`;
+      state.attachment = { type: "image", name, content: b64, mime: file.type };
+      showAttachChip(name, fmtSize(file.size), "🖼️");
     };
     reader.readAsDataURL(file);
   } else if (TEXT_EXTS.has(ext)) {
-    if (file.size > MAX_TEXT_BYTES) { showToast("File too large (max 50 KB)"); el.fileInput.value = ""; return; }
+    if (file.size > MAX_TEXT_BYTES) { showToast("File too large (max 50 KB)"); return; }
     const reader = new FileReader();
     reader.onload = () => {
-      state.attachment = { type: "text", name: file.name, content: reader.result, mime: file.type, sizeLabel: fmtSize(file.size) };
+      state.attachment = { type: "text", name: file.name, content: reader.result, mime: file.type };
       showAttachChip(file.name, fmtSize(file.size), "📄");
     };
     reader.readAsText(file);
   } else {
-    showToast("Unsupported file type");
-    el.fileInput.value = "";
+    showToast("Unsupported type — use images or text/code files");
+  }
+}
+
+el.attachBtn.addEventListener("click", () => { if (!state.sending) el.fileInput.click(); });
+el.fileInput.addEventListener("change", () => { processFile(el.fileInput.files[0]); el.fileInput.value = ""; });
+
+/* ── Drag-and-drop ───────────────────────────────────────── */
+const dropOverlay = document.getElementById("dropOverlay");
+let dragDepth = 0;
+
+document.addEventListener("dragenter", e => {
+  if (state.sending) return;
+  e.preventDefault();
+  dragDepth++;
+  dropOverlay.classList.add("active");
+});
+document.addEventListener("dragleave", () => {
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (dragDepth === 0) dropOverlay.classList.remove("active");
+});
+document.addEventListener("dragover", e => e.preventDefault());
+document.addEventListener("drop", e => {
+  e.preventDefault();
+  dragDepth = 0;
+  dropOverlay.classList.remove("active");
+  if (state.sending) return;
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+});
+
+/* ── Paste image from clipboard ─────────────────────────── */
+el.input.addEventListener("paste", e => {
+  if (state.sending) return;
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (const item of items) {
+    if (item.kind === "file" && item.type.startsWith("image/")) {
+      e.preventDefault();
+      processFile(item.getAsFile());
+      return;
+    }
   }
 });
 
