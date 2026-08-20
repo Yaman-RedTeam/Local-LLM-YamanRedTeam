@@ -454,7 +454,7 @@ body[data-tier="high"]   .welcome-glow { background: radial-gradient(circle, rgb
 .mdc-row strong { color: var(--text-muted); font-family: var(--mono); font-size: 10.5px; }
 
 /* ═══ MESSAGES ════════════════════════════════════════════════════════ */
-#messages { max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+#messages { width: 100%; max-width: 840px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
 .msg { display: flex; gap: 13px; align-items: flex-start; animation: msgIn 0.28s cubic-bezier(0.22,1,0.36,1); }
 @keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .msg.user { flex-direction: row-reverse; }
