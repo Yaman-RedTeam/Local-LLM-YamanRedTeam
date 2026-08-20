@@ -29,6 +29,8 @@ const CATEGORIES = [
     prompt: "I'm stuck on a CTF web challenge involving an IDOR. Explain the vulnerability class and a general approach to testing for it in my lab." },
   { icon: "🔒", label: "Secure Coding", hint: "Best practices",
     prompt: "Show a secure way to handle user file uploads in a Python FastAPI app, and explain the risks of a naive implementation." },
+  { icon: "🕸️", label: "Web Exploitation", hint: "XSS · SQLi · SSRF",
+    prompt: "For my authorized web pentest lab, explain the OWASP Top 10 web exploitation classes (XSS, SQLi, SSRF, IDOR, auth bypass) and a general testing approach for each." },
   { icon: "🧠", label: "Vuln Explanation", hint: "Deep dives",
     prompt: "Explain SSRF: what it is, why it's dangerous, and common mitigations, at a level suitable for a junior security analyst." },
   { icon: "📝", label: "Report Writing", hint: "Professional findings",
