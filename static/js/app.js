@@ -65,6 +65,7 @@ const el = {
   fileInput:     document.getElementById("fileInput"),
   attachPreview: document.getElementById("attachPreview"),
   micBtn:        document.getElementById("micBtn"),
+  stopBtn:       document.getElementById("stopBtn"),
   modelBar:      document.getElementById("modelBar"),
   barIcon:       document.getElementById("barIcon"),
   barName:       document.getElementById("barName"),
@@ -422,10 +423,12 @@ function scrollToBottom() {
 /* ── Controls ────────────────────────────────────────────── */
 function setSending(v) {
   state.sending = v;
-  el.sendBtn.disabled = v;
   el.input.disabled = v;
   el.attachBtn.disabled = v;
   el.micBtn.disabled = v;
+  // send ↔ stop toggle
+  el.sendBtn.style.display = v ? "none" : "flex";
+  el.stopBtn.style.display = v ? "flex" : "none";
 }
 
 function clearChat() {
@@ -618,6 +621,13 @@ el.input.addEventListener("paste", e => {
   };
 })();
 
+/* ── Stop button ─────────────────────────────────────────── */
+let _abortController = null;
+
+el.stopBtn.addEventListener("click", () => {
+  if (_abortController) _abortController.abort();
+});
+
 /* ── Submit ──────────────────────────────────────────────── */
 el.form.addEventListener("submit", async e => {
   e.preventDefault();
@@ -627,7 +637,7 @@ el.form.addEventListener("submit", async e => {
   if (!text && !state.attachment) return;
 
   const tier = state.tier;
-  const att  = state.attachment;   // snapshot before clearing
+  const att  = state.attachment;
 
   el.input.value = "";
   autoGrow(el.input);
@@ -635,7 +645,6 @@ el.form.addEventListener("submit", async e => {
   clearAttachment();
   setSending(true);
 
-  // Show what the user is sending (message + optional file label)
   const displayText = text || `[Attached: ${att?.name}]`;
   addMessage("user", displayText, tier);
   state.history.push({ role: "user", content: displayText });
@@ -644,16 +653,18 @@ el.form.addEventListener("submit", async e => {
   let fullContent = "";
   let streamBubble = null;
 
-  // Build fetch payload
   const payload = { messages: state.history, tier };
   if (att?.type === "text")  { payload.file_name = att.name; payload.file_content = att.content; }
   if (att?.type === "image") { payload.image_b64 = att.content; payload.image_mime = att.mime; }
+
+  _abortController = new AbortController();
 
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: _abortController.signal
     });
 
     if (!res.ok) {
@@ -736,11 +747,31 @@ el.form.addEventListener("submit", async e => {
       state.history.pop();
     }
 
-  } catch {
-    removeTypingIndicator();
-    addErrorMessage("Could not reach the backend. Is the server running?");
-    state.history.pop();
+  } catch (err) {
+    if (err.name === "AbortError") {
+      // User clicked Stop — keep whatever was generated so far
+      removeTypingIndicator();
+      if (streamBubble && fullContent) {
+        streamBubble.classList.remove("streaming");
+        streamBubble.querySelector(".scan-line")?.remove();
+        streamBubble.closest(".msg-content")?.querySelector(".stream-badge")?.remove();
+        streamBubble.innerHTML = "";
+        renderMessageBody(streamBubble, fullContent);
+        state.history.push({ role: "assistant", content: fullContent });
+        showToast("Generation stopped");
+      } else if (streamBubble) {
+        streamBubble.closest(".msg")?.remove();
+        state.history.pop();
+      } else {
+        state.history.pop();
+      }
+    } else {
+      removeTypingIndicator();
+      addErrorMessage("Could not reach the backend. Is the server running?");
+      state.history.pop();
+    }
   } finally {
+    _abortController = null;
     setSending(false);
     el.input.focus();
   }
