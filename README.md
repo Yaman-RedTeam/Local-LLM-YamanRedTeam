@@ -20,7 +20,7 @@ third-party API.
 ## ✨ Highlights
 
 - **3-tier model switcher** — pick a model to match your hardware: from a
-  1.1 B featherweight to a 7B powerhouse.
+  1.1 B featherweight to a fully uncensored 10.7B Mixtral MoE powerhouse.
 - **Real-time streaming** — responses stream token-by-token via SSE; a
   blinking cursor shows the model is still generating, disappears when done.
   First word appears in ~1–2 s instead of waiting for full completion.
