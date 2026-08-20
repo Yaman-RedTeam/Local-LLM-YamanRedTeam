@@ -170,7 +170,7 @@ Local-LLM-YamanRedTeam/
 
 ## Requirements
 
-- Linux (tested on Kali Linux) or macOS/WSL2
+- Linux (tested on Kali Linux), macOS, or Windows 10/11
 - Python 3.10+
 - [Ollama](https://ollama.com) installed and runnable
 - Disk/RAM depending on the tier(s) you pull (see the table above)
@@ -204,7 +204,45 @@ ollama pull mistral            # HIGH  (~8 GB RAM)
 > You don't need all three — pull only the tiers your machine can run. The UI
 > shows a dim ○ for any tier whose model isn't pulled yet.
 
+## Setup (Windows 10 / 11)
+
+**Prerequisites — install these first:**
+
+| Tool | Download |
+|------|----------|
+| Python 3.10+ | https://www.python.org/downloads/ — tick **"Add python.exe to PATH"** during install |
+| Git | https://git-scm.com/download/win |
+| Ollama | https://ollama.com/download/windows — run the `.exe` installer |
+
+**Then in PowerShell or Command Prompt:**
+
+```powershell
+# 1. Clone the repo
+git clone https://github.com/Yaman-RedTeam/Local-LLM-YamanRedTeam.git
+cd Local-LLM-YamanRedTeam
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+venv\Scripts\activate
+
+# 3. Install Python dependencies
+pip install -r requirements.txt
+
+# 4. Copy the example environment file
+copy .env.example .env
+
+# 5. Pull the model(s) you want
+ollama pull tinyllama          # LOW   (~2 GB RAM)
+ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
+ollama pull mistral            # HIGH  (~8 GB RAM)
+```
+
+> Ollama on Windows starts automatically in the system tray after installation.
+> If it's not running, search for **Ollama** in the Start menu and launch it.
+
 ## Running the app
+
+### Linux / macOS
 
 Option A — the helper script (starts Ollama if it isn't running, then the web app):
 
@@ -222,7 +260,15 @@ source venv/bin/activate
 uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-Then open **http://localhost:8000**.
+### Windows
+
+```powershell
+# Make sure Ollama is running (system tray icon)
+venv\Scripts\activate
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+Then open **http://localhost:8000** in your browser.
 
 ## Configuration
 
@@ -293,6 +339,10 @@ served at **`/api/docs`**.
   soon as generation starts, even if loading takes 30–90 s on a CPU-only box.
   Subsequent requests are faster once the model is warm.
 - **Port already in use** — change `APP_PORT` in `.env`.
+- **Windows: `venv\Scripts\activate` not recognized** — open PowerShell as
+  Administrator and run `Set-ExecutionPolicy RemoteSigned`, then try again.
+- **Windows: `python` not found** — reinstall Python and make sure
+  **"Add python.exe to PATH"** is ticked, or use `py` instead of `python`.
 
 ## Responsible use
 
