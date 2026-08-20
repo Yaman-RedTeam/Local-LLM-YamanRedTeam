@@ -1,0 +1,36 @@
+# Environments
+venv/
+.venv/
+env/
+ENV/
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Ollama model weights (never commit these)
+models/
+*.gguf
+*.bin
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs / temp
+*.log
+nohup.out
+tmp/
+*.tmp
+
+# Secrets — should never exist in the repo, but block by extension anyway
+*.pem
+*.key
+secrets.*

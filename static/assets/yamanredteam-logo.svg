@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="YamanRedTeam logo">
+  <defs>
+    <linearGradient id="yrtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff3b4e"/>
+      <stop offset="100%" stop-color="#7a0f1c"/>
+    </linearGradient>
+  </defs>
+  <polygon points="32,3 58,17 58,47 32,61 6,47 6,17"
+           fill="#0b0f14" stroke="url(#yrtGrad)" stroke-width="2.5"/>
+  <path d="M20 20 L32 34 L44 20 M32 34 L32 46"
+        fill="none" stroke="url(#yrtGrad)" stroke-width="3.5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="20" cy="20" r="2.4" fill="url(#yrtGrad)"/>
+  <circle cx="44" cy="20" r="2.4" fill="url(#yrtGrad)"/>
+  <circle cx="32" cy="46" r="2.4" fill="url(#yrtGrad)"/>
+</svg>
