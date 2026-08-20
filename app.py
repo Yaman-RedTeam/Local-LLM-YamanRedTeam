@@ -97,6 +97,10 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     messages: List[ChatMessage] = Field(min_length=1, max_length=MAX_HISTORY_MESSAGES)
     tier: Optional[str] = DEFAULT_TIER
+    file_name:    Optional[str] = None   # original filename
+    file_content: Optional[str] = None   # text file content (max ~50 KB)
+    image_b64:    Optional[str] = None   # base64-encoded image
+    image_mime:   Optional[str] = None   # e.g. "image/png"
 
     @field_validator("messages")
     @classmethod
@@ -190,6 +194,28 @@ async def chat(payload: ChatRequest):
 
     msgs = [{"role": "system", "content": SYSTEM_PROMPT}]
     msgs += [{"role": m.role, "content": m.content} for m in payload.messages]
+
+    # ── Text file injection ────────────────────────────────────────────────────
+    if payload.file_name and payload.file_content:
+        snippet = payload.file_content[:12000]  # cap at ~12 KB
+        msgs[-1]["content"] += (
+            f"\n\n[Attached file: `{payload.file_name}`]\n"
+            f"```\n{snippet}\n```\n"
+            f"Please analyze the content above and answer the user's question."
+        )
+
+    # ── Image request → use llava ─────────────────────────────────────────────
+    using_vision = bool(payload.image_b64)
+    if using_vision:
+        pulled = await _pulled_models()
+        pulled_ids = {_short(m["name"]) for m in pulled}
+        if "llava" not in pulled_ids:
+            async def stream_response():
+                yield f"data: {json.dumps({'error': 'Image analysis requires the llava model. Run: ollama pull llava (needs ~4.7 GB RAM)'})}\n\n"
+            return StreamingResponse(stream_response(), media_type="text/event-stream",
+                                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+        model_id = "llava"
+        msgs[-1]["images"] = [payload.image_b64]
 
     async def stream_response():
         try:

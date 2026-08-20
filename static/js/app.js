@@ -40,7 +40,8 @@ const state = {
   tier: "low",
   history: [],
   sending: false,
-  msgCount: 0
+  msgCount: 0,
+  attachment: null  // {type:'text'|'image', name, content, mime, sizeLabel}
 };
 
 /* ── Elements ────────────────────────────────────────────── */
@@ -60,6 +61,9 @@ const el = {
   msgCount:      document.getElementById("msgCount"),
   tokenEst:      document.getElementById("tokenEst"),
   toast:         document.getElementById("toast"),
+  attachBtn:     document.getElementById("attachBtn"),
+  fileInput:     document.getElementById("fileInput"),
+  attachPreview: document.getElementById("attachPreview"),
   modelBar:      document.getElementById("modelBar"),
   barIcon:       document.getElementById("barIcon"),
   barName:       document.getElementById("barName"),
@@ -419,6 +423,7 @@ function setSending(v) {
   state.sending = v;
   el.sendBtn.disabled = v;
   el.input.disabled = v;
+  el.attachBtn.disabled = v;
 }
 
 function clearChat() {
@@ -439,32 +444,106 @@ function newChat() {
   el.input.focus();
 }
 
+/* ── File / image attachment ─────────────────────────────── */
+const TEXT_EXTS = new Set([".txt",".log",".py",".php",".js",".ts",".json",".xml",".sh",".sql",".conf",".md",".csv",".yaml",".yml",".html",".css"]);
+const IMAGE_EXTS = new Set([".png",".jpg",".jpeg",".webp",".gif"]);
+const MAX_TEXT_BYTES  = 50 * 1024;   // 50 KB
+const MAX_IMAGE_BYTES =  5 * 1024 * 1024;  // 5 MB
+
+function fmtSize(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function clearAttachment() {
+  state.attachment = null;
+  el.attachPreview.innerHTML = "";
+  el.attachBtn.classList.remove("has-file");
+  el.fileInput.value = "";
+}
+
+function showAttachChip(name, sizeLabel, icon) {
+  el.attachPreview.innerHTML = "";
+  const chip = document.createElement("div");
+  chip.className = "attach-chip";
+  chip.innerHTML = `
+    <span class="attach-chip-icon">${icon}</span>
+    <span class="attach-chip-name">${name}</span>
+    <span class="attach-chip-size">${sizeLabel}</span>
+    <button type="button" class="attach-chip-remove" title="Remove">✕</button>`;
+  chip.querySelector(".attach-chip-remove").addEventListener("click", clearAttachment);
+  el.attachPreview.appendChild(chip);
+  el.attachBtn.classList.add("has-file");
+}
+
+el.attachBtn.addEventListener("click", () => { if (!state.sending) el.fileInput.click(); });
+
+el.fileInput.addEventListener("change", () => {
+  const file = el.fileInput.files[0];
+  if (!file) return;
+  const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+
+  if (IMAGE_EXTS.has(ext)) {
+    if (file.size > MAX_IMAGE_BYTES) { showToast("Image too large (max 5 MB)"); el.fileInput.value = ""; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;          // "data:image/png;base64,..."
+      const b64 = dataUrl.split(",")[1];
+      state.attachment = { type: "image", name: file.name, content: b64, mime: file.type, sizeLabel: fmtSize(file.size) };
+      showAttachChip(file.name, fmtSize(file.size), "🖼️");
+    };
+    reader.readAsDataURL(file);
+  } else if (TEXT_EXTS.has(ext)) {
+    if (file.size > MAX_TEXT_BYTES) { showToast("File too large (max 50 KB)"); el.fileInput.value = ""; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      state.attachment = { type: "text", name: file.name, content: reader.result, mime: file.type, sizeLabel: fmtSize(file.size) };
+      showAttachChip(file.name, fmtSize(file.size), "📄");
+    };
+    reader.readAsText(file);
+  } else {
+    showToast("Unsupported file type");
+    el.fileInput.value = "";
+  }
+});
+
 /* ── Submit ──────────────────────────────────────────────── */
 el.form.addEventListener("submit", async e => {
   e.preventDefault();
   if (state.sending) return;
 
   const text = el.input.value.trim();
-  if (!text) return;
+  if (!text && !state.attachment) return;
 
   const tier = state.tier;
+  const att  = state.attachment;   // snapshot before clearing
+
   el.input.value = "";
   autoGrow(el.input);
   updateCharCount();
+  clearAttachment();
   setSending(true);
 
-  addMessage("user", text, tier);
-  state.history.push({ role: "user", content: text });
+  // Show what the user is sending (message + optional file label)
+  const displayText = text || `[Attached: ${att?.name}]`;
+  addMessage("user", displayText, tier);
+  state.history.push({ role: "user", content: displayText });
   addTypingIndicator(tier);
 
   let fullContent = "";
   let streamBubble = null;
 
+  // Build fetch payload
+  const payload = { messages: state.history, tier };
+  if (att?.type === "text")  { payload.file_name = att.name; payload.file_content = att.content; }
+  if (att?.type === "image") { payload.image_b64 = att.content; payload.image_mime = att.mime; }
+
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: state.history, tier })
+      body: JSON.stringify(payload)
     });
 
     if (!res.ok) {
