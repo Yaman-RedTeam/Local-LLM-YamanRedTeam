@@ -301,6 +301,50 @@ ollama pull nous-hermes2:10.7b
 > Ollama on Windows starts automatically in the system tray after installation.
 > If it's not running, search for **Ollama** in the Start menu and launch it.
 
+## Updating to the latest version
+
+If you already have ULTRON AI installed and want to pull the latest changes:
+
+### Linux / macOS
+
+```bash
+cd Local-LLM-YamanRedTeam
+
+# 1. Stop the server if running (Ctrl+C or kill the process)
+
+# 2. Pull latest code
+git pull origin main
+
+# 3. Activate venv and update dependencies
+source venv/bin/activate
+pip install -r requirements.txt
+
+# 4. Restart the server
+./run.sh
+```
+
+### Windows
+
+```powershell
+cd Local-LLM-YamanRedTeam
+
+# 1. Stop the server (Ctrl+C in the terminal where it's running)
+
+# 2. Pull latest code
+git pull origin main
+
+# 3. Activate venv and update dependencies
+venv\Scripts\activate
+pip install -r requirements.txt
+
+# 4. Restart the server
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+> **Note:** Ollama models don't need to be re-pulled on update — they stay on your disk. Only re-pull a model if the tier table shows a new model name.
+
+---
+
 ## Running the app
 
 ### Linux / macOS
