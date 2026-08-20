@@ -39,7 +39,7 @@
   /* ── Fixed per-tier palette (theme-independent indicators) ── */
   --tier-low-rgb: 34, 227, 122;   --tier-low: #22e37a;   --tier-low-bright: #5dffab;
   --tier-medium-rgb: 34, 211, 238; --tier-medium: #22d3ee; --tier-medium-bright: #6ae7f8;
-  --tier-high-rgb: 255, 138, 51;  --tier-high: #ff8a33;  --tier-high-bright: #ffab63;
+  --tier-high-rgb: 255, 51, 85;   --tier-high: #ff3355;  --tier-high-bright: #ff6080;
 
   /* ── System states ── */
   --ok:     #22e37a;  --ok-glow: rgba(34, 227, 122, 0.30);
@@ -74,7 +74,7 @@ body[data-tier="medium"] {
   --accent: #22d3ee; --accent-bright: #6ae7f8; --accent-dim: #0d5568; --accent-rgb: 34, 211, 238;
 }
 body[data-tier="high"] {
-  --accent: #ff8a33; --accent-bright: #ffab63; --accent-dim: #7a3a10; --accent-rgb: 255, 138, 51;
+  --accent: #ff3355; --accent-bright: #ff6080; --accent-dim: #7a1525; --accent-rgb: 255, 51, 85;
 }
 
 
@@ -114,9 +114,9 @@ body[data-tier="medium"] .bg-aura {
 }
 body[data-tier="high"] .bg-aura {
   background:
-    radial-gradient(46% 42% at 16% 8%,  rgba(255,138,51, 0.10),  transparent 62%),
-    radial-gradient(42% 40% at 88% 14%, rgba(255,138,51, 0.06),   transparent 62%),
-    radial-gradient(70% 55% at 50% 118%, rgba(255,138,51, 0.10),  transparent 60%);
+    radial-gradient(46% 42% at 16% 8%,  rgba(255,51,85, 0.10),  transparent 62%),
+    radial-gradient(42% 40% at 88% 14%, rgba(255,51,85, 0.06),   transparent 62%),
+    radial-gradient(70% 55% at 50% 118%, rgba(255,51,85, 0.10),  transparent 60%);
 }
 .bg-grid {
   inset: -40%;
@@ -136,8 +136,8 @@ body[data-tier="medium"] .bg-grid {
 }
 body[data-tier="high"] .bg-grid {
   background-image:
-    linear-gradient(rgba(255,138,51, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,138,51, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(255,51,85, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,51,85, 0.04) 1px, transparent 1px);
 }
 @keyframes grid-drift {
   from { transform: translate3d(0,0,0); }
@@ -360,7 +360,7 @@ body[data-tier="high"] .bg-grid {
   pointer-events: none; z-index: 0; filter: blur(8px);
 }
 body[data-tier="medium"] .welcome-glow { background: radial-gradient(circle, rgba(34,211,238, 0.22) 0%, transparent 65%); }
-body[data-tier="high"]   .welcome-glow { background: radial-gradient(circle, rgba(255,138,51, 0.22) 0%, transparent 65%); }
+body[data-tier="high"]   .welcome-glow { background: radial-gradient(circle, rgba(255,51,85, 0.22) 0%, transparent 65%); }
 .welcome-logo-wrap {
   position: relative; z-index: 1; width: 70px; height: 70px; margin: 0 auto 14px;
   background: linear-gradient(150deg, rgba(var(--accent-rgb), 0.95), rgba(var(--accent-rgb), 0.28));
