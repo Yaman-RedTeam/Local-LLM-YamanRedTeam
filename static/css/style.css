@@ -105,16 +105,16 @@ body {
 }
 .bg-aura {
   background:
-    radial-gradient(46% 42% at 16% 8%,  rgba(var(--tier-low-rgb), 0.10), transparent 62%),
-    radial-gradient(42% 40% at 88% 14%, rgba(var(--cyan-rgb), 0.07),     transparent 62%),
+    radial-gradient(46% 42% at 16% 8%,  rgba(var(--accent-rgb), 0.10),  transparent 62%),
+    radial-gradient(42% 40% at 88% 14%, rgba(var(--accent-rgb), 0.06),   transparent 62%),
     radial-gradient(70% 55% at 50% 118%, rgba(var(--accent-rgb), 0.10),  transparent 60%);
   transition: background 0.6s ease;
 }
 .bg-grid {
   inset: -40%;
   background-image:
-    linear-gradient(rgba(130, 200, 165, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(130, 200, 165, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(var(--accent-rgb), 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
   -webkit-mask-image: radial-gradient(ellipse 55% 55% at 50% 42%, #000 0%, transparent 72%);
           mask-image: radial-gradient(ellipse 55% 55% at 50% 42%, #000 0%, transparent 72%);
