@@ -360,6 +360,7 @@ function addMessage(role, text, tier) {
   scrollToBottom();
   state.msgCount++;
   updateStats();
+  return bubble;
 }
 
 function addErrorMessage(text) {
@@ -456,6 +457,9 @@ el.form.addEventListener("submit", async e => {
   state.history.push({ role: "user", content: text });
   addTypingIndicator(tier);
 
+  let fullContent = "";
+  let streamBubble = null;
+
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -463,16 +467,63 @@ el.form.addEventListener("submit", async e => {
       body: JSON.stringify({ messages: state.history, tier })
     });
 
-    const data = await res.json();
-    removeTypingIndicator();
-
     if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      removeTypingIndicator();
       addErrorMessage(data.detail || "The local model returned an error.");
       state.history.pop();
-    } else {
-      addMessage("assistant", data.content, data.tier);
-      state.history.push({ role: "assistant", content: data.content });
+      return;
     }
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split("\n");
+      buf = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const raw = line.slice(6).trim();
+        if (raw === "[DONE]") continue;
+
+        let chunk;
+        try { chunk = JSON.parse(raw); } catch { continue; }
+
+        if (chunk.error) {
+          removeTypingIndicator();
+          addErrorMessage(chunk.error);
+          state.history.pop();
+          return;
+        }
+
+        if (chunk.content) {
+          if (!streamBubble) {
+            removeTypingIndicator();
+            streamBubble = addMessage("assistant", "", tier);
+          }
+          fullContent += chunk.content;
+          streamBubble.textContent = fullContent;
+          scrollToBottom();
+        }
+      }
+    }
+
+    if (streamBubble && fullContent) {
+      streamBubble.innerHTML = "";
+      renderMessageBody(streamBubble, fullContent);
+      state.history.push({ role: "assistant", content: fullContent });
+    } else if (!streamBubble) {
+      removeTypingIndicator();
+      addErrorMessage("Model returned an empty response.");
+      state.history.pop();
+    }
+
   } catch {
     removeTypingIndicator();
     addErrorMessage("Could not reach the backend. Is the server running?");

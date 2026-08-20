@@ -6,9 +6,12 @@ Multi-model support: LOW / MEDIUM / HIGH tier.
 import os
 from typing import List, Literal, Optional
 
+import json
+
 import httpx
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator
@@ -34,6 +37,8 @@ MODELS = {
         "params":      "1.1B",
         "size":        "637 MB",
         "badge":       "⚡ Fast",
+        "num_predict": 600,
+        "num_ctx":     2048,
     },
     "medium": {
         "id":          "dolphin-llama3",
@@ -43,6 +48,8 @@ MODELS = {
         "params":      "8B",
         "size":        "4.7 GB",
         "badge":       "⚖️ Balanced",
+        "num_predict": 1200,
+        "num_ctx":     2048,
     },
     "high": {
         "id":          "mistral",
@@ -52,6 +59,8 @@ MODELS = {
         "params":      "7B (Mistral)",
         "size":        "4.1 GB",
         "badge":       "🔥 Powerful",
+        "num_predict": 2048,
+        "num_ctx":     4096,
     },
 }
 
@@ -174,7 +183,7 @@ async def status():
     }
 
 
-@app.post("/api/chat", response_model=ChatResponse)
+@app.post("/api/chat")
 async def chat(payload: ChatRequest):
     tier = payload.tier or DEFAULT_TIER
     model_id = MODELS[tier]["id"]
@@ -182,48 +191,55 @@ async def chat(payload: ChatRequest):
     msgs = [{"role": "system", "content": SYSTEM_PROMPT}]
     msgs += [{"role": m.role, "content": m.content} for m in payload.messages]
 
-    try:
-        async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
-            resp = await client.post(
-                f"{OLLAMA_HOST}/api/chat",
-                json={"model": model_id, "messages": msgs, "stream": False},
-            )
-            resp.raise_for_status()
-    except httpx.ConnectError:
-        raise HTTPException(503, detail=f"Cannot reach Ollama at {OLLAMA_HOST}. Run: ollama serve")
-    except httpx.TimeoutException:
-        raise HTTPException(504, detail="Model took too long. Switch to a lower tier or try a shorter prompt.")
-    except httpx.HTTPStatusError as exc:
+    async def stream_response():
         try:
-            err_msg = exc.response.json().get("error", "")
-        except (ValueError, KeyError, AttributeError):
-            err_msg = exc.response.text or ""
-        low = err_msg.lower()
+            async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
+                async with client.stream(
+                    "POST",
+                    f"{OLLAMA_HOST}/api/chat",
+                    json={
+                        "model": model_id,
+                        "messages": msgs,
+                        "stream": True,
+                        "options": {
+                            "num_thread": 2,
+                            "num_predict": MODELS[tier]["num_predict"],
+                            "num_ctx":     MODELS[tier]["num_ctx"],
+                        },
+                    },
+                ) as resp:
+                    if resp.status_code == 404:
+                        yield f"data: {json.dumps({'error': f'Model {model_id!r} not installed. Run: ollama pull {model_id}'})}\n\n"
+                        return
+                    if resp.status_code != 200:
+                        yield f"data: {json.dumps({'error': f'Ollama error (HTTP {resp.status_code})'})}\n\n"
+                        return
 
-        if exc.response.status_code == 404 or "not found" in low:
-            raise HTTPException(503, detail=f"Model '{model_id}' not installed. Run: ollama pull {model_id}")
+                    async for line in resp.aiter_lines():
+                        if not line:
+                            continue
+                        try:
+                            chunk = json.loads(line)
+                            token = chunk.get("message", {}).get("content", "")
+                            if token:
+                                yield f"data: {json.dumps({'content': token})}\n\n"
+                            if chunk.get("done"):
+                                yield "data: [DONE]\n\n"
+                        except json.JSONDecodeError:
+                            pass
 
-        # Model too big to load into available RAM (common on CPU-only boxes)
-        mem_markers = ("insufficient memory", "unable to allocate",
-                       "failed to allocate", "out of memory", "cannot allocate")
-        if any(k in low for k in mem_markers):
-            ram = MODELS[tier]["ram"]
-            raise HTTPException(
-                507,
-                detail=(f"Not enough RAM to load '{model_id}'. The {MODELS[tier]['label']} "
-                        f"tier needs {ram}; your system has less free memory. "
-                        f"Switch to a lower tier (HIGH / MEDIUM / LOW)."),
-            )
+        except httpx.ConnectError:
+            yield f"data: {json.dumps({'error': f'Cannot reach Ollama at {OLLAMA_HOST}. Run: ollama serve'})}\n\n"
+        except httpx.TimeoutException:
+            yield f"data: {json.dumps({'error': 'Model took too long. Switch to a lower tier or try a shorter prompt.'})}\n\n"
+        except Exception as exc:
+            yield f"data: {json.dumps({'error': str(exc)[:180]})}\n\n"
 
-        raise HTTPException(502, detail=f"Ollama error: {err_msg[:180]}" if err_msg
-                            else "Ollama returned an unexpected error.")
-
-    data    = resp.json()
-    content = data.get("message", {}).get("content", "").strip()
-    if not content:
-        raise HTTPException(502, detail="Ollama returned an empty response.")
-
-    return ChatResponse(content=content, model=model_id, tier=tier)
+    return StreamingResponse(
+        stream_response(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 if __name__ == "__main__":
