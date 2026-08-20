@@ -613,7 +613,11 @@ el.form.addEventListener("submit", async e => {
 
         if (chunk.error) {
           removeTypingIndicator();
-          if (streamBubble) streamBubble.classList.remove("streaming");
+          if (streamBubble) {
+            streamBubble.classList.remove("streaming");
+            streamBubble.querySelector(".scan-line")?.remove();
+            streamBubble.closest(".msg-content")?.querySelector(".stream-badge")?.remove();
+          }
           addErrorMessage(chunk.error);
           state.history.pop();
           return;
@@ -624,6 +628,20 @@ el.form.addEventListener("submit", async e => {
             removeTypingIndicator();
             streamBubble = addMessage("assistant", "", tier);
             streamBubble.classList.add("streaming");
+
+            // scan-line sweeps across the top of the bubble
+            const scanLine = document.createElement("div");
+            scanLine.className = "scan-line";
+            streamBubble.prepend(scanLine);
+
+            // "● live" badge in the message meta
+            const meta = streamBubble.closest(".msg-content")?.querySelector(".msg-meta");
+            if (meta) {
+              const badge = document.createElement("span");
+              badge.className = "stream-badge";
+              badge.textContent = "live";
+              meta.appendChild(badge);
+            }
           }
           fullContent += chunk.content;
           streamBubble.textContent = fullContent;
@@ -634,6 +652,8 @@ el.form.addEventListener("submit", async e => {
 
     if (streamBubble && fullContent) {
       streamBubble.classList.remove("streaming");
+      streamBubble.querySelector(".scan-line")?.remove();
+      streamBubble.closest(".msg-content")?.querySelector(".stream-badge")?.remove();
       streamBubble.innerHTML = "";
       renderMessageBody(streamBubble, fullContent);
       state.history.push({ role: "assistant", content: fullContent });
