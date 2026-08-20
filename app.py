@@ -192,6 +192,15 @@ async def chat(payload: ChatRequest):
     tier = payload.tier or DEFAULT_TIER
     model_id = MODELS[tier]["id"]
 
+    # ── Pre-check: model must be pulled before streaming ──────────────────────
+    pulled = await _pulled_models()
+    pulled_ids = {_short(m["name"]) for m in pulled}
+    if _short(model_id) not in pulled_ids:
+        async def _not_pulled():
+            yield f"data: {json.dumps({'error': f'Model {model_id!r} is not installed. Run: ollama pull {model_id}'})}\n\n"
+        return StreamingResponse(_not_pulled(), media_type="text/event-stream",
+                                 headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
     msgs = [{"role": "system", "content": SYSTEM_PROMPT}]
     msgs += [{"role": m.role, "content": m.content} for m in payload.messages]
 
@@ -207,8 +216,6 @@ async def chat(payload: ChatRequest):
     # ── Image request → use llava ─────────────────────────────────────────────
     using_vision = bool(payload.image_b64)
     if using_vision:
-        pulled = await _pulled_models()
-        pulled_ids = {_short(m["name"]) for m in pulled}
         if "llava" not in pulled_ids:
             async def stream_response():
                 yield f"data: {json.dumps({'error': 'Image analysis requires the llava model. Run: ollama pull llava (needs ~4.7 GB RAM)'})}\n\n"

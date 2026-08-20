@@ -41,7 +41,8 @@ const state = {
   history: [],
   sending: false,
   msgCount: 0,
-  attachment: null  // {type:'text'|'image', name, content, mime, sizeLabel}
+  attachment: null,  // {type:'text'|'image', name, content, mime, sizeLabel}
+  modelAvail: {}     // tier → true/false (populated by refreshStatus)
 };
 
 /* ── Elements ────────────────────────────────────────────── */
@@ -185,11 +186,11 @@ el.input.addEventListener("keydown", e => {
 
 /* ── Toast ───────────────────────────────────────────────── */
 let toastTimer = null;
-function showToast(msg) {
+function showToast(msg, duration = 2200) {
   el.toast.textContent = msg;
   el.toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.toast.classList.remove("show"), 2200);
+  toastTimer = setTimeout(() => el.toast.classList.remove("show"), duration);
 }
 
 /* ── Stats ───────────────────────────────────────────────── */
@@ -639,6 +640,13 @@ el.form.addEventListener("submit", async e => {
   const tier = state.tier;
   const att  = state.attachment;
 
+  // Block if model not pulled — show clear message before any network call
+  if (state.modelAvail[tier] === false) {
+    const modelId = MODELS[tier]?.id || tier;
+    showToast(`Model not installed. Run: ollama pull ${modelId}`, 5000);
+    return;
+  }
+
   el.input.value = "";
   autoGrow(el.input);
   updateCharCount();
@@ -784,6 +792,7 @@ async function refreshStatus() {
     const data = await res.json();
 
     for (const [tier, info] of Object.entries(data.models)) {
+      state.modelAvail[tier] = info.available;
       const dot = document.getElementById(`avail-${tier}`);
       if (dot) {
         dot.textContent = info.available ? "●" : "○";
