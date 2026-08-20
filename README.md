@@ -24,6 +24,9 @@ third-party API.
 - **Real-time streaming** — responses stream token-by-token via SSE; a
   blinking cursor shows the model is still generating, disappears when done.
   First word appears in ~1–2 s instead of waiting for full completion.
+- **File & image upload** — attach source files, logs, configs, or
+  screenshots; the model analyzes the content inline. Images route to the
+  `llava` vision model automatically.
 - **Dynamic UI theming** — switching tier recolors the *entire* interface:
   🟢 **LOW** · 🔵 **MEDIUM** · 🔴 **HIGH**, with a smooth 0.4 s color morph.
 - **Live micro-interactions** — a theme-aware glow **pulse** on the active
@@ -93,6 +96,19 @@ button, tier card, send button, and message bubbles all recolor together.
 
 > 🎥 A short clip of the pulse recoloring across all three themes is included
 > at [`screenshots/tier-pulse.webm`](screenshots/tier-pulse.webm).
+
+### File & image upload
+
+Attach source files, logs, or screenshots directly in the composer. A preview
+chip shows the filename and size; click × to remove it before sending.
+
+<p align="center">
+  <img src="screenshots/attach-feature.png" alt="File attach chip in the composer" width="880">
+</p>
+
+> Supported text types: `.txt` `.log` `.py` `.php` `.js` `.ts` `.json`
+> `.xml` `.sh` `.sql` `.conf` `.md` `.csv` `.yaml` `.html` `.css` (max 50 KB)  
+> Supported image types: `.png` `.jpg` `.jpeg` `.webp` `.gif` (max 5 MB — requires `ollama pull llava`)
 
 ---
 
