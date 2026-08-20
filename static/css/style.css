@@ -484,8 +484,29 @@ body[data-tier="extreme"] .welcome-glow { background: radial-gradient(circle, rg
   font-size: 9.5px; flex-shrink: 0; font-family: var(--mono); font-weight: 700; letter-spacing: 0.04em;
   box-shadow: var(--edge-hi);
 }
-.msg.assistant .msg-avatar { background: linear-gradient(150deg, rgba(var(--accent-rgb),0.95), rgba(var(--accent-rgb),0.3)); color: #04120b; box-shadow: var(--edge-hi), 0 0 16px -2px var(--accent-glow); }
-.msg.user .msg-avatar { background: var(--bg-elevated-2); border: 1px solid var(--border); color: var(--text-muted); }
+.msg-avatar-user { background: var(--bg-elevated-2); border: 1px solid var(--border); color: var(--text-muted); }
+.msg-avatar-ai {
+  background: linear-gradient(150deg, rgba(var(--accent-rgb),0.18), rgba(var(--accent-rgb),0.06));
+  border: 1px solid rgba(var(--accent-rgb), 0.40);
+  box-shadow: var(--edge-hi), 0 0 18px -3px var(--accent-glow);
+  animation: avatar-breathe 2.8s ease-in-out infinite;
+}
+.msg-avatar-thinking {
+  animation: avatar-thinking 1.4s ease-in-out infinite;
+}
+.msg-avatar-logo {
+  width: 20px; height: 20px;
+  filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(var(--accent-rgb), 0.9));
+}
+@keyframes avatar-breathe {
+  0%, 100% { box-shadow: var(--edge-hi), 0 0 14px -3px var(--accent-glow); border-color: rgba(var(--accent-rgb), 0.35); }
+  50%       { box-shadow: var(--edge-hi), 0 0 26px 1px var(--accent-glow); border-color: rgba(var(--accent-rgb), 0.65); }
+}
+@keyframes avatar-thinking {
+  0%, 100% { box-shadow: var(--edge-hi), 0 0 20px -2px var(--accent-glow); border-color: rgba(var(--accent-rgb), 0.50); transform: scale(1); }
+  50%       { box-shadow: var(--edge-hi), 0 0 34px 4px var(--accent-glow); border-color: rgba(var(--accent-rgb), 0.85); transform: scale(1.07); }
+}
+.msg.error .msg-avatar { background: rgba(255,84,112,0.12); border: 1px solid rgba(255,84,112,0.35); color: var(--danger); font-size: 13px; }
 .msg-content { display: flex; flex-direction: column; gap: 5px; max-width: 76%; }
 .msg.user .msg-content { align-items: flex-end; }
 .msg-meta { font-size: 10px; color: var(--text-faint); font-family: var(--mono); display: flex; gap: 7px; align-items: center; }

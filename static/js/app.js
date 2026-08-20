@@ -337,8 +337,12 @@ function addMessage(role, text, tier) {
   row.className = `msg ${role}`;
 
   const avatar = document.createElement("div");
-  avatar.className = "msg-avatar";
-  avatar.textContent = role === "user" ? "YOU" : "YRT";
+  avatar.className = role === "user" ? "msg-avatar msg-avatar-user" : "msg-avatar msg-avatar-ai";
+  if (role === "user") {
+    avatar.textContent = "YOU";
+  } else {
+    avatar.innerHTML = '<img src="/static/assets/yamanredteam-logo.svg" class="msg-avatar-logo" alt="">';
+  }
 
   const content = document.createElement("div");
   content.className = "msg-content";
@@ -386,8 +390,8 @@ function addTypingIndicator(tier) {
   row.className = "msg assistant";
   row.id = "typingRow";
   const avatar = document.createElement("div");
-  avatar.className = "msg-avatar";
-  avatar.textContent = "YRT";
+  avatar.className = "msg-avatar msg-avatar-ai msg-avatar-thinking";
+  avatar.innerHTML = '<img src="/static/assets/yamanredteam-logo.svg" class="msg-avatar-logo" alt="">';
   const content = document.createElement("div");
   content.className = "msg-content";
   const bubble = document.createElement("div");
