@@ -288,11 +288,15 @@ pip install -r requirements.txt
 # 4. Copy the example environment file
 copy .env.example .env
 
-# 5. Pull the model(s) you want
-ollama pull tinyllama          # LOW   (~2 GB RAM)
-ollama pull dolphin-llama3     # MEDIUM (~6 GB RAM)
-ollama pull nous-hermes2:10.7b     # HIGH   (~6 GB RAM)
+# 5. Pull the model(s) you want  (run only the ones you need)
+ollama pull tinyllama
+ollama pull dolphin-llama3
+ollama pull nous-hermes2:10.7b
 ```
+
+> **Note:** Do not copy the `# comment` parts — Windows CMD does not support
+> inline comments and will throw an error. Run each `ollama pull` command on
+> its own without any `#` text after it.
 
 > Ollama on Windows starts automatically in the system tray after installation.
 > If it's not running, search for **Ollama** in the Start menu and launch it.
